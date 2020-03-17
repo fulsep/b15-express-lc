@@ -4,12 +4,11 @@ require('dotenv').config()
 
 const app = express()
 
-// Import Router
-const UserRoutes = require('./src/routes/Users')
-
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+
+const AuthMiddleware = require('./src/middleware/Auth')
 
 app.get('/', function (req, res) {
   const data = {
@@ -30,8 +29,13 @@ app.get('/migrate', function (req, res) {
 
 app.use('/users/picture', express.static('files'))
 
+// Import Router
+const UserRoutes = require('./src/routes/Users')
+const AuthRoutes = require('./src/routes/Auth')
+
 // Define Routes
-app.use('/users', UserRoutes)
+app.use('/users', AuthMiddleware.checkAuthToken, UserRoutes)
+app.use('/auth', AuthRoutes)
 
 app.listen(process.env.APP_PORT, function () {
   console.log(`App Listen on Port ${process.env.APP_PORT}`)
