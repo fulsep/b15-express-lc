@@ -1,6 +1,19 @@
 const db = require('../utils/db')
 
 module.exports = {
+  getUserById: function (id) {
+    return new Promise(function (resolve, reject) {
+      const sql = `SELECT * FROM users WHERE id=${id}`
+      console.log(sql)
+      db.query(sql, function (err, results, fields) {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(results[0])
+        }
+      })
+    })
+  },
   getAllUsers: function (conditions = {}) {
     let { page, perPage, sort, search } = conditions
     page = page || 1

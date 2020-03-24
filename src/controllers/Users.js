@@ -16,19 +16,21 @@ module.exports = {
     sort = (sort && { key, value }) || { key: 'id', value: 1 }
     const conditions = { page, perPage: limit, search, sort }
 
-    if (req.user.roleId !== 1) {
-      const data = {
-        success: false,
-        msg: 'You\'re not allowed to access this feature'
-      }
-      res.send(data)
-    }
+    // if (req.user.roleId !== 1) {
+    //   const data = {
+    //     success: false,
+    //     msg: 'You\'re not allowed to access this feature'
+    //   }
+    //   res.send(data)
+    // }
     const results = await UserModel.getAllUsers(conditions)
     results.forEach(function (o, i) {
       results[i].picture = process.env.APP_USER_PICTURE_URI.concat(results[i].picture)
     })
     conditions.totalData = await UserModel.getTotalUsers(conditions)
     conditions.totalPage = Math.ceil(conditions.totalData / conditions.perPage)
+    conditions.nextLink = (page >= conditions.totalPage ? null : process.env.APP_URI.concat(`users?page=${page + 1}`))
+    conditions.prevLink = (page <= 1 ? null : process.env.APP_URI.concat(`users?page=${page - 1}`))
     delete conditions.search
     delete conditions.sort
     delete conditions.limit
@@ -37,6 +39,13 @@ module.exports = {
       success: true,
       data: results,
       pageInfo: conditions
+    }
+    res.send(data)
+  },
+  get: async function (req, res) {
+    const data = {
+      success: true,
+      data: await UserModel.getUserById(req.params.id)
     }
     res.send(data)
   },
@@ -63,6 +72,7 @@ module.exports = {
     res.send(data)
   },
   update: async function (req, res) {
+    console.log(req.body)
     const picture = (req.file && req.file.filename) || null
     const { id } = req.params
     const { username, password } = req.body

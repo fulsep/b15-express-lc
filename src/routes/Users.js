@@ -12,6 +12,8 @@ const UserControllers = require('../controllers/Users')
 
 Users.get('/', UserControllers.read)
 
+Users.get('/:id', UserControllers.get)
+
 Users.post('/', upload.single('picture'), UserControllers.create)
 
 Users.patch('/:id', upload.single('picture'), UserControllers.update)

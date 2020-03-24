@@ -1,12 +1,14 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 require('dotenv').config()
+const cors = require('cors')
 
 const app = express()
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+app.use(cors('*'))
 
 const AuthMiddleware = require('./src/middleware/Auth')
 
@@ -34,7 +36,7 @@ const UserRoutes = require('./src/routes/Users')
 const AuthRoutes = require('./src/routes/Auth')
 
 // Define Routes
-app.use('/users', AuthMiddleware.checkAuthToken, UserRoutes)
+app.use('/users', UserRoutes)
 app.use('/auth', AuthRoutes)
 
 app.listen(process.env.APP_PORT, function () {
